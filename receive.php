@@ -1,14 +1,21 @@
 <?php
 
-if(isset($_GET['value'])){
-    $data = $_GET['value'];
+include "db.php";
 
-    echo "Received: " . $data;
+$ec = mysqli_real_escape_string($conn, $_GET['ec'] ?? '0');
+$moisture = mysqli_real_escape_string($conn, $_GET['moisture'] ?? '0');
+$temp = mysqli_real_escape_string($conn, $_GET['temp'] ?? '0');
 
-    file_put_contents("data.txt", $data . "\n", FILE_APPEND);
+// store sensor values
 
-}else{
-    echo "No data received";
-}
+$sql = "INSERT INTO sensor_data (ec, moisture, temperature) VALUES ('$ec','$moisture','$temp')";
+$conn->query($sql);
+
+
+// run python model automatically
+$cmd = escapeshellcmd("python predict.py");
+exec($cmd . " > /dev/null 2>&1 &"); // Run in background to prevent hanging PHP
+
+echo "Sensor Data Saved + Model Executed";
 
 ?>
