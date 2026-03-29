@@ -8,6 +8,7 @@ The system is designed to help farmers make **data-driven farming decisions** by
 This project integrates **IoT sensors, backend processing, database management, and a web-based dashboard** to provide real-time soil analysis and agricultural insights.
 
 ---
+<img width="1440" height="1524" alt="image" src="https://github.com/user-attachments/assets/8b7d529a-aa4c-4447-8a63-0ed92839c9ba" />
 
 # Key Features
 
