@@ -1,0 +1,122 @@
+
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <WiFiManager.h>
+#include <ModbusMaster.h>
+
+#define RXD2 3
+#define TXD2 4
+#define BUTTON_PIN 2
+
+HardwareSerial RS485Serial(1);
+ModbusMaster node;
+WiFiManager wm;
+
+String serverName = "http://10.239.107.1/Product/receive.php";
+
+void setup()
+{
+  Serial.begin(115200);
+
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+
+  RS485Serial.begin(4800, SERIAL_8N1, RXD2, TXD2);
+  node.begin(1, RS485Serial);
+
+  Serial.println("Starting WiFi Manager...");
+
+  bool res = wm.autoConnect("SoilSensor_Setup");
+
+  if (!res)
+  {
+    Serial.println("WiFi Failed");
+    ESP.restart();
+  }
+
+  Serial.println("WiFi Connected!");
+}
+
+void loop()
+{
+  if (digitalRead(BUTTON_PIN) == LOW)
+  {
+    Serial.println("Measurement Started");
+
+    delay(1000); // stabilization delay
+
+    float temp_sum = 0;
+    float moisture_sum = 0;
+    float ec_sum = 0;
+
+    int sample_count = 0;
+
+    unsigned long startTime = millis();
+
+    while (millis() - startTime < 3000)
+    {
+      uint8_t result = node.readHoldingRegisters(0x0000, 3);
+
+      if (result == node.ku8MBSuccess)
+      {
+        float temperature = node.getResponseBuffer(0) / 10.0;
+        float moisture = node.getResponseBuffer(1) / 10.0;
+        float ec = node.getResponseBuffer(2);
+
+        temp_sum += temperature;
+        moisture_sum += moisture;
+        ec_sum += ec;
+
+        sample_count++;
+
+        Serial.print("Sample: ");
+        Serial.println(sample_count);
+      }
+
+      delay(200);
+    }
+
+    if (sample_count > 0)
+    {
+      float avg_temp = temp_sum / sample_count;
+      float avg_moisture = moisture_sum / sample_count;
+      float avg_ec = ec_sum / sample_count;
+
+      Serial.println("Sending averaged data...");
+
+      sendToServer(avg_temp, avg_moisture, avg_ec);
+    }
+
+    delay(2000); // prevent double trigger
+  }
+}
+
+void sendToServer(float temp, float moisture, float ec)
+{
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    HTTPClient http;
+
+    String url = serverName +
+                 "?device=SOIL001" +
+                 "&moisture=" + String(moisture) +
+                 "&ec=" + String(ec) +
+                 "&temp=" + String(temp);
+
+    http.begin(url);
+
+    int httpResponseCode = http.GET();
+
+    if (httpResponseCode > 0)
+    {
+      Serial.println(http.getString());
+    }
+    else
+    {
+      Serial.print("HTTP Error: ");
+      Serial.println(httpResponseCode);
+    }
+
+    http.end();
+  }
+}
+
