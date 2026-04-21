@@ -12,19 +12,18 @@ $username = $_SESSION['username'] ?? 'User';
     <title>Select Soil Profile - SmartSoil Analyzer</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Colorful Agriculture-Themed Professional Variables */
+        /* SmartSoil – Colorful #F2B759 & #0A4A3C Palette */
         :root {
-            --primary: #2c3e2d;         /* Deep earthy forest green for primary text */
-            --secondary: #5d665e;       /* Earthy gray for paragraphs */
-            --bg-light: #fdfbf7;        /* Very soft cream/warm white for background */
-            --bg-alt: #f0f5f1;          /* Soft pale green for alternating sections */
-            --card-bg: #f0f5f1;         /* Changed to avoid white boxes */
+            --primary: #0A4A3C;
+            --secondary: #1f6153;
+            --bg-light: #fdfbf7;
+            --bg-alt: #f1ebd8;
+            --card-bg: #ffffff;
             --text-light: #ffffff;
-            --border-color: #dcedc8;    /* Very soft green border */
-            
-            --accent: #4caf50;          /* Vibrant leaf green */
-            --accent-hover: #388e3c;    /* Deep leaf green */
-            --accent-warm: #f6a623;     /* Warm sun/harvest yellow/orange accent */
+            --border-color: #e6d8bc;
+            --accent: #F2B759;
+            --accent-hover: #e09e36;
+            --accent-warm: #f5c77e;
         }
 
         * {
@@ -45,16 +44,17 @@ $username = $_SESSION['username'] ?? 'User';
         body {
             color: var(--primary);
             line-height: 1.7;
-            background-color: var(--bg-light);
+            background: var(--bg-light);
+            min-height: 100vh;
             overflow-x: hidden;
         }
 
         /* Navbar */
         .navbar {
             width: 100%;
-            background: var(--bg-light);
-            border-bottom: 2px solid var(--border-color);
-            box-shadow: 0 2px 20px rgba(44, 62, 45, 0.08);
+            background: var(--card-bg);
+            border-bottom: 2px solid var(--accent);
+            box-shadow: 0 4px 20px rgba(10, 74, 60, 0.15);
             height: 68px;
             display: flex;
             align-items: center;
@@ -83,13 +83,13 @@ $username = $_SESSION['username'] ?? 'User';
             width: 38px;
             height: 38px;
             background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-            color: var(--text-light);
+            color: var(--primary);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
-            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 4px 10px rgba(242, 183, 89, 0.4);
         }
 
         .nav-links {
@@ -109,7 +109,7 @@ $username = $_SESSION['username'] ?? 'User';
             text-decoration: none;
         }
 
-        .nav-links a:hover { color: var(--accent-hover); background: var(--bg-alt); }
+        .nav-links a:hover { color: var(--primary); background: rgba(242, 183, 89, 0.15); }
         .nav-links a.danger { color: #c62828; }
         .nav-links a.danger:hover { background: #ffebee; color: #b71c1c; }
 
@@ -117,13 +117,13 @@ $username = $_SESSION['username'] ?? 'User';
             display: flex;
             align-items: center;
             gap: 6px;
-            background: var(--bg-alt);
-            border: 1px solid var(--border-color);
+            background: rgba(242, 183, 89, 0.15);
+            border: 1px solid var(--accent);
             border-radius: 20px;
             padding: 6px 14px;
             font-size: 0.82rem;
-            font-weight: 600;
-            color: var(--accent-hover);
+            font-weight: 700;
+            color: var(--primary);
             white-space: nowrap;
         }
 
@@ -146,15 +146,15 @@ $username = $_SESSION['username'] ?? 'User';
         }
 
         .btn-green {
-            background: var(--accent);
+            background: linear-gradient(135deg, #0A4A3C 0%, #177864 100%);
             color: var(--text-light);
-            box-shadow: 0 4px 14px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 4px 14px rgba(10, 74, 60, 0.35);
         }
         .btn-green:hover {
-            background: var(--accent-hover);
+            background: linear-gradient(135deg, #0d5e4d, #0A4A3C);
             color: var(--text-light);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+            box-shadow: 0 8px 20px rgba(10, 74, 60, 0.5);
         }
 
         .btn-white {
@@ -183,42 +183,43 @@ $username = $_SESSION['username'] ?? 'User';
         .page-head h1::after {
             content: '';
             display: block;
-            width: 50px;
-            height: 4px;
-            background: var(--accent-warm);
+            width: 60px;
+            height: 5px;
+            background: linear-gradient(135deg, #F2B759 0%, #e09e36 100%);
             margin: 14px auto 0;
-            border-radius: 2px;
+            border-radius: 3px;
         }
         .page-head p { font-size: 1.05rem; color: var(--secondary); max-width: 600px; margin: 0 auto; }
 
         .section-tag {
             display: inline-block;
-            background: #e8f5e9;
-            color: var(--accent-hover);
-            font-size: 0.72rem;
-            font-weight: 700;
+            background: rgba(242, 183, 89, 0.15);
+            color: var(--primary);
+            font-size: 0.75rem;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            padding: 5px 14px;
+            padding: 6px 16px;
             border-radius: 20px;
             margin-bottom: 12px;
+            border: 1px solid var(--accent);
         }
 
         /* Cards */
         .fcard, .rec-card, .tip-card, .soil-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-top: 3px solid var(--accent);
+            border-top: 4px solid var(--primary);
             border-radius: 12px;
             padding: 28px 24px;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 15px rgba(44, 62, 45, 0.05);
+            box-shadow: 0 5px 20px rgba(10, 74, 60, 0.05);
         }
 
         .fcard:hover, .rec-card:hover, .tip-card:hover, .soil-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(44, 62, 45, 0.1);
-            border-top-color: var(--accent-warm);
+            box-shadow: 0 12px 35px rgba(242, 183, 89, 0.2);
+            border-top-color: var(--accent);
         }
 
         /* Soil Select */
@@ -239,12 +240,12 @@ $username = $_SESSION['username'] ?? 'User';
         .prop-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
         .prop-tag {
             font-size: 0.78rem;
-            font-weight: 600;
-            padding: 4px 12px;
+            font-weight: 700;
+            padding: 5px 12px;
             border-radius: 20px;
-            background: var(--bg-alt);
-            color: var(--accent-hover);
-            border: 1px solid var(--border-color);
+            background: rgba(10, 74, 60, 0.08);
+            color: var(--primary);
+            border: 1px solid rgba(10, 74, 60, 0.2);
         }
 
         .sel-btn {
@@ -252,12 +253,12 @@ $username = $_SESSION['username'] ?? 'User';
             width: 100%;
             padding: 12px;
             text-align: center;
-            background: var(--bg-alt);
+            background: rgba(242, 183, 89, 0.1);
             border: 2px solid var(--accent);
             border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--accent-hover);
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--primary);
             font-family: 'Outfit', sans-serif;
             letter-spacing: 0.5px;
             cursor: pointer;
@@ -265,21 +266,22 @@ $username = $_SESSION['username'] ?? 'User';
             text-decoration: none;
         }
         .sel-btn:hover {
-            background: var(--accent);
-            color: var(--text-light);
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: var(--primary);
+            box-shadow: 0 4px 15px rgba(242, 183, 89, 0.4);
+            border-color: #d19a3b;
         }
 
         /* Footer */
         footer.site-footer {
-            background: var(--primary);
-            color: #a3b8a5;
+            background: linear-gradient(135deg, #0A4A3C, #177864);
+            color: rgba(255,255,255,0.8);
             text-align: center;
-            padding: 28px 40px;
-            font-size: 0.9rem;
-            border-top: 3px solid var(--accent-warm);
+            padding: 30px 40px;
+            font-size: 0.95rem;
+            border-top: 5px solid var(--accent);
         }
-        footer.site-footer strong { color: var(--text-light); }
+        footer.site-footer strong { color: var(--accent); font-weight: 800; }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -295,15 +297,11 @@ $username = $_SESSION['username'] ?? 'User';
 <!-- ====== NAVBAR ====== -->
 <nav class="navbar">
     <a href="index.php" class="nav-logo">
-        <div class="nav-logo-icon">🌱</div>
+        <div class="nav-logo-icon">SS</div>
         Smart<span>Soil</span>
     </a>
-    <div class="nav-links">
-        <a href="index.php">Home</a>
+        <a href="dashboard.php">Profile</a>
         <a href="index.php#contact">Contact</a>
-        <a href="login.php">Login</a>
-        <span class="nav-chip" style="background:#fdfbf7; color:#2c3e2d; border-color:#dcedc8;">👤 <?php echo htmlspecialchars($username); ?></span>
-        <a href="dashboard.php">Dashboard</a>
         <a href="logout.php" class="danger">Logout</a>
     </div>
 </nav>
@@ -379,8 +377,9 @@ $username = $_SESSION['username'] ?? 'User';
             </div>
         </div>
 
-        <div style="text-align:center; margin-top:50px;">
-            <a href="dashboard.php" class="btn btn-white">Skip to Dashboard &rarr;</a>
+        <div style="text-align:center; margin-top:50px; display:flex; justify-content:center; gap:16px;">
+            <a href="dashboard.php" class="btn btn-white">Skip to Profile &rarr;</a>
+            <a href="logout.php" class="btn btn-white" style="color:#c62828; border-color:#ffcdd2;">Logout</a>
         </div>
     </div>
 </div>

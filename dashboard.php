@@ -11,6 +11,18 @@ $npk = mysqli_fetch_assoc($npk_result) ?: ['nitrogen'=>'0','phosphorus'=>'0','po
 $soil_data = ['standard_n'=>'50','standard_p'=>'40','standard_k'=>'50'];
 $sq = mysqli_query($conn, "SELECT * FROM soil_types WHERE soil_name='".mysqli_real_escape_string($conn,$soil_name)."' LIMIT 1");
 if($sq && mysqli_num_rows($sq)>0) $soil_data = mysqli_fetch_assoc($sq);
+
+// Handle Prediction Mode Toggle
+if(isset($_POST['toggle_mode'])) {
+    $new_mode = $_POST['toggle_mode'] === 'all' ? 'all' : 'regular';
+    mysqli_query($conn, "UPDATE farmer_preferences SET prediction_mode='$new_mode' WHERE user_id=".$_SESSION['user_id']);
+}
+
+// Fetch Preferences
+$pref_result = mysqli_query($conn, "SELECT * FROM farmer_preferences WHERE user_id=".$_SESSION['user_id']);
+$prefs = mysqli_fetch_assoc($pref_result) ?: ['prediction_mode'=>'regular', 'preferred_crops'=>''];
+$prediction_mode = $prefs['prediction_mode'];
+
 $status=[];
 if($npk['nitrogen']<$soil_data['standard_n'])   $status[]=['label'=>'Nitrogen Deficient','icon'=>'N'];
 if($npk['phosphorus']<$soil_data['standard_p']) $status[]=['label'=>'Phosphorus Deficient','icon'=>'P'];
@@ -25,23 +37,23 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="5">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - SmartSoil Analyzer</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Colorful Agriculture-Themed Professional Variables */
+        /* SmartSoil – Colorful #F2B759 & #0A4A3C Palette */
         :root {
-            --primary: #2c3e2d;         /* Deep earthy forest green for primary text */
-            --secondary: #5d665e;       /* Earthy gray for paragraphs */
-            --bg-light: #fdfbf7;        /* Very soft cream/warm white for background */
-            --bg-alt: #f0f5f1;          /* Soft pale green for alternating sections */
-            --card-bg: #f0f5f1;         /* Changed to avoid white boxes */
+            --primary: #0A4A3C;
+            --secondary: #1f6153;
+            --bg-light: #fdfbf7;
+            --bg-alt: #f1ebd8;
+            --card-bg: #ffffff;
             --text-light: #ffffff;
-            --border-color: #dcedc8;    /* Very soft green border */
-            
-            --accent: #4caf50;          /* Vibrant leaf green */
-            --accent-hover: #388e3c;    /* Deep leaf green */
-            --accent-warm: #f6a623;     /* Warm sun/harvest yellow/orange accent */
+            --border-color: #e6d8bc;
+            --accent: #F2B759;
+            --accent-hover: #e09e36;
+            --accent-warm: #f5c77e;
         }
 
         * {
@@ -62,16 +74,17 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
         body {
             color: var(--primary);
             line-height: 1.7;
-            background-color: var(--bg-light);
+            background: var(--bg-light);
+            min-height: 100vh;
             overflow-x: hidden;
         }
 
         /* Navbar */
         .navbar {
             width: 100%;
-            background: var(--bg-light);
-            border-bottom: 2px solid var(--border-color);
-            box-shadow: 0 2px 20px rgba(44, 62, 45, 0.08);
+            background: var(--card-bg);
+            border-bottom: 2px solid var(--accent);
+            box-shadow: 0 4px 20px rgba(10, 74, 60, 0.15);
             height: 68px;
             display: flex;
             align-items: center;
@@ -106,7 +119,7 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
-            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 161, 155, 0.35);
         }
 
         .nav-links {
@@ -126,17 +139,18 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
             text-decoration: none;
         }
 
-        .nav-links a:hover { color: var(--accent-hover); background: var(--bg-alt); }
+        .nav-links a:hover { color: var(--primary); background: rgba(242, 183, 89, 0.15); }
         .nav-links a.danger { color: #c62828; }
         .nav-links a.danger:hover { background: #ffebee; color: #b71c1c; }
 
         .nav-links .nav-cta {
-            background: var(--accent);
+            background: linear-gradient(135deg, #0A4A3C 0%, #177864 100%);
             color: var(--text-light) !important;
             padding: 9px 22px;
             border-radius: 6px;
             font-weight: 700;
-            box-shadow: 0 3px 12px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 3px 12px rgba(10, 74, 60, 0.3);
+            border: 1px solid #146150;
         }
         .nav-links .nav-cta:hover {
             background: var(--accent-hover) !important;
@@ -148,7 +162,7 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
             display: flex;
             align-items: center;
             gap: 6px;
-            background: var(--bg-alt);
+            background: rgba(0,161,155,0.1);
             border: 1px solid var(--border-color);
             border-radius: 20px;
             padding: 6px 14px;
@@ -177,15 +191,15 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
         }
 
         .btn-green {
-            background: var(--accent);
+            background: linear-gradient(135deg, #0A4A3C 0%, #177864 100%);
             color: var(--text-light);
-            box-shadow: 0 4px 14px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 4px 14px rgba(10, 74, 60, 0.35);
         }
         .btn-green:hover {
-            background: var(--accent-hover);
+            background: linear-gradient(135deg, #0d5e4d, #0A4A3C);
             color: var(--text-light);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+            box-shadow: 0 8px 20px rgba(10, 74, 60, 0.5);
         }
 
         .btn-white {
@@ -226,11 +240,11 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
         .dash-top h1::after {
             content: '';
             display: block;
-            width: 40px;
-            height: 4px;
-            background: var(--accent-warm);
+            width: 60px;
+            height: 5px;
+            background: linear-gradient(135deg, #F2B759 0%, #e09e36 100%);
             margin-top: 8px;
-            border-radius: 2px;
+            border-radius: 3px;
         }
 
         .dash-top p { font-size: 0.95rem; color: var(--secondary); }
@@ -263,10 +277,11 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
         }
 
         .d-section:nth-child(even) {
-            background: var(--bg-alt);
+            background: linear-gradient(135deg, rgba(242, 183, 89, 0.08) 0%, rgba(10, 74, 60, 0.05) 100%);
             padding: 40px;
             border-radius: 12px;
             margin-bottom: 40px;
+            border: 1px solid rgba(242, 183, 89, 0.2);
         }
 
         .d-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
@@ -291,11 +306,11 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
             font-weight: 700;
             padding: 4px 12px;
             border-radius: 20px;
-            background: #e8f5e9;
+            background: rgba(0,161,155,0.12);
             color: var(--accent-hover);
             text-transform: uppercase;
             letter-spacing: 0.8px;
-            border: 1px solid #a5d6a7;
+            border: 1px solid rgba(0,161,155,0.3);
         }
 
         .d-badge-live { animation: blink 2s infinite; }
@@ -311,12 +326,12 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
             border-radius: 12px;
             padding: 28px 24px;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 15px rgba(44, 62, 45, 0.05);
+            box-shadow: 0 2px 15px rgba(0, 161, 155, 0.07);
         }
 
         .d-card:hover, .cmp-card:hover, .fert-box:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(44, 62, 45, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 161, 155, 0.15);
             border-top-color: var(--accent-warm);
         }
 
@@ -343,7 +358,7 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
 
         .bar-wrap { margin-top: 16px; }
         .bar-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--secondary); margin-bottom: 6px; font-weight: 600; }
-        .bar-bg { height: 8px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
+        .bar-bg { height: 8px; background: #c0b8b0; border-radius: 10px; overflow: hidden; }
         .bar-fg { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--accent), var(--accent-hover)); transition: width 1.2s ease; }
         .bar-red { background: linear-gradient(90deg, var(--accent-warm), #e53935) !important; }
 
@@ -402,14 +417,14 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
 
         /* Footer */
         footer.site-footer {
-            background: var(--primary);
-            color: #a3b8a5;
+            background: linear-gradient(135deg, #0A4A3C, #177864);
+            color: rgba(255,255,255,0.8);
             text-align: center;
-            padding: 28px 40px;
-            font-size: 0.9rem;
-            border-top: 3px solid var(--accent-warm);
+            padding: 30px 40px;
+            font-size: 0.95rem;
+            border-top: 5px solid var(--accent);
         }
-        footer.site-footer strong { color: var(--text-light); }
+        footer.site-footer strong { color: var(--accent); font-weight: 800; }
 
         /* Responsive */
         @media (max-width: 1024px) {
@@ -434,15 +449,24 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
 <!-- ====== NAVBAR ====== -->
 <nav class="navbar">
     <a href="index.php" class="nav-logo">
-        <div class="nav-logo-icon">🌱</div>
+        <div class="nav-logo-icon">SS</div>
         Smart<span>Soil</span>
     </a>
     <div class="nav-links">
         <a href="index.php">Home</a>
+        <a href="dashboard.php">Profile</a>
         <a href="index.php#contact">Contact</a>
-        <a href="login.php">Login</a>
-        <span class="nav-chip" style="background:#fdfbf7; color:#2c3e2d; border-color:#dcedc8;">👤 <?php echo htmlspecialchars($username); ?></span>
         <a href="logout.php" class="danger">Logout</a>
+        
+        <!-- Toggle Mode -->
+        <form method="POST" style="display:inline-flex; margin-left:15px; background:var(--bg-alt); padding:4px; border-radius:30px; border:1px solid var(--border-color);">
+            <button type="submit" name="toggle_mode" value="regular" class="nav-chip" style="margin:0; border:none; cursor:pointer; background:<?php echo $prediction_mode==='regular'?'var(--accent)':'transparent'; ?>; color:<?php echo $prediction_mode==='regular'?'white':'var(--secondary)'; ?>; transition:0.3s;">
+                Regular Crops
+            </button>
+            <button type="submit" name="toggle_mode" value="all" class="nav-chip" style="margin:0; border:none; cursor:pointer; background:<?php echo $prediction_mode==='all'?'var(--accent)':'transparent'; ?>; color:<?php echo $prediction_mode==='all'?'white':'var(--secondary)'; ?>; transition:0.3s;">
+                All Crops
+            </button>
+        </form>
     </div>
 </nav>
 
@@ -453,16 +477,40 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
         <div>
             <h1>Soil Analytics Dashboard</h1>
             <p>Live sensor data &middot; AI predictions &middot; Soil: <strong style="color:#388e3c"><?php echo htmlspecialchars($soil_name); ?></strong></p>
+            <p style="font-size:0.85rem; color:var(--secondary); margin-top:4px;">
+                Location: <strong><?php echo htmlspecialchars($prefs['district']); ?> &rsaquo; <?php echo htmlspecialchars($prefs['taluka']); ?></strong> &nbsp; | &nbsp;
+                Hardware: <strong style="color:<?php echo !empty($user['hardware_id'])?'var(--accent)':'#777'; ?>"><?php echo !empty($user['hardware_id'])?htmlspecialchars($user['hardware_id']):'Not Linked'; ?></strong>
+            </p>
         </div>
         <div class="refresh" onclick="location.reload()">
             <span>&#8635;</span> Synchronize Data
         </div>
     </div>
 
+    <!-- AI RECOMMENDATION STRATEGY -->
+    <div class="d-section" style="margin-bottom:20px;">
+        <div class="d-card" style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border-color); background:rgba(255,255,255,0.7); backdrop-filter:blur(5px);">
+            <div>
+                <h3 style="font-size:1.1rem; color:var(--primary); font-weight:800;">AI Recommendation Mode</h3>
+                <p style="font-size:0.85rem; color:var(--secondary);">How should the system prioritize its suggestions?</p>
+            </div>
+            <form method="POST">
+                <div style="background:#eee; padding:3px; border-radius:30px; display:inline-flex;">
+                    <button type="submit" name="toggle_mode" value="regular" style="cursor:pointer; border:none; padding:8px 18px; border-radius:30px; font-weight:700; transition:0.3s; background:<?php echo $prediction_mode==='regular'?'var(--accent)':'transparent'; ?>; color:<?php echo $prediction_mode==='regular'?'white':'#666'; ?>;">
+                        Farmer Choice
+                    </button>
+                    <button type="submit" name="toggle_mode" value="all" style="cursor:pointer; border:none; padding:8px 18px; border-radius:30px; font-weight:700; transition:0.3s; background:<?php echo $prediction_mode==='all'?'var(--accent)':'transparent'; ?>; color:<?php echo $prediction_mode==='all'?'white':'#666'; ?>;">
+                        Universal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- SENSOR DATA -->
     <div class="d-section">
         <div class="d-head">
-            <div class="d-icon">📡</div>
+            <div class="d-icon">H</div>
             <h2>Hardware Sensor Readings</h2>
             <span class="d-badge d-badge-live">LIVE</span>
         </div>
@@ -500,7 +548,7 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
     <!-- ML NPK -->
     <div class="d-section">
         <div class="d-head">
-            <div class="d-icon">🧠</div>
+            <div class="d-icon">AI</div>
             <h2>AI-Predicted NPK Values</h2>
             <span class="d-badge" style="color:#f6a623; border-color:#f6a623; background:#fff8e1;">Precision AI Model</span>
         </div>
@@ -538,7 +586,7 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
     <!-- COMPARISON -->
     <div class="d-section">
         <div class="d-head">
-            <div class="d-icon">📊</div>
+            <div class="d-icon">VS</div>
             <h2>Predicted vs Standard Baseline (<?php echo htmlspecialchars($soil_name); ?>)</h2>
         </div>
         <div class="cmp-card">
@@ -581,13 +629,13 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
     <!-- HEALTH STATUS -->
     <div class="d-section">
         <div class="d-head">
-            <div class="d-icon">🌿</div>
+            <div class="d-icon">SH</div>
             <h2>Soil Health and Fertility Status</h2>
         </div>
         <div class="g3">
             <?php if(empty($status)): ?>
             <div class="d-card" style="border-top-color:#388e3c">
-                <div style="font-size:2.5rem; margin-bottom:14px;">✅</div>
+                <div style="font-size:2.5rem; margin-bottom:14px; color:#388e3c; font-weight:900;">OK</div>
                 <div class="d-lbl">All Nutrients</div>
                 <div class="d-val ov" style="font-size:1.6rem">Balanced</div>
                 <div class="d-sub" style="margin-top:8px">No deficiencies detected. Field is healthy.</div>
@@ -602,8 +650,8 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
             <?php endforeach; endif; ?>
 
             <div class="fert-box" style="border-top-color:<?php echo $fcol; ?>">
-                <div class="fert-ring" style="border-color:<?php echo $fcol; ?>">
-                    <?php echo $avg>=60?'🌿':($avg>=30?'🌱':'⚠️'); ?>
+                <div class="fert-ring" style="border-color:<?php echo $fcol; ?>; color:<?php echo $fcol; ?>;">
+                    <?php echo $avg>=60?'H':($avg>=30?'M':'L'); ?>
                 </div>
                 <div>
                     <h3 style="color:<?php echo $fcol; ?>; font-size:1.3rem; font-weight:800; margin-bottom:5px"><?php echo $fert; ?></h3>
@@ -617,10 +665,14 @@ function pct($v,$m){return $m>0?min(100,round(($v/$m)*100)):0;}
 
     <!-- ACTIONS -->
     <div class="action-row">
-        <a href="recommendation.php" class="btn btn-green">🌾 Crop &amp; Fertilizer Plan</a>
-        <a href="soil_select.php"    class="btn btn-white">&#8635; Change Soil Type</a>
-        <a href="fertilizer.php"     class="btn btn-white">🧪 Fertilizer Details</a>
-        <a href="crop.php"           class="btn btn-white">🌾 Crop Details</a>
+        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+            <a href="admin_panel.php" class="btn btn-green" style="background:#1e293b;">&#9881; Admin Panel</a>
+        <?php endif; ?>
+        <a href="recommendation.php" class="btn btn-green">Crop &amp; Fertilizer Plan</a>
+        <a href="soil_select.php"    class="btn btn-white">Change Soil Type</a>
+        <a href="fertilizer.php"     class="btn btn-white">Fertilizer Details</a>
+        <a href="crop.php"           class="btn btn-white">Crop Details</a>
+        <a href="logout.php"         class="btn btn-white" style="color:#c62828; border-color:#ffcdd2;">Logout</a>
     </div>
 
 </div>

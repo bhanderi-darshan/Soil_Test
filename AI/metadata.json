@@ -1,0 +1,81 @@
+{
+  "label_encoder_classes": [
+    "Clay",
+    "Loamy",
+    "Peaty",
+    "Sandy",
+    "Silty"
+  ],
+  "features": [
+    "Moisture",
+    "EC",
+    "Soil_Temperature",
+    "Soil_Enc"
+  ],
+  "feature_names": [
+    "Moisture (%)",
+    "EC (dS/m)",
+    "Temperature (\u00b0C)",
+    "Soil_Type (encoded)"
+  ],
+  "metrics": {
+    "N": {
+      "r2": 0.3388,
+      "mae": 14.735,
+      "rmse": 18.144,
+      "cv_r2": 0.313,
+      "feature_importance": {
+        "Moisture": 0.249,
+        "EC": 0.552,
+        "Temperature": 0.171,
+        "Soil_Type": 0.028
+      }
+    },
+    "P": {
+      "r2": 0.1206,
+      "mae": 13.497,
+      "rmse": 16.122,
+      "cv_r2": 0.1372,
+      "feature_importance": {
+        "Moisture": 0.285,
+        "EC": 0.444,
+        "Temperature": 0.232,
+        "Soil_Type": 0.038
+      }
+    },
+    "K": {
+      "r2": 0.3186,
+      "mae": 14.483,
+      "rmse": 17.795,
+      "cv_r2": 0.289,
+      "feature_importance": {
+        "Moisture": 0.271,
+        "EC": 0.537,
+        "Temperature": 0.165,
+        "Soil_Type": 0.027
+      }
+    }
+  },
+  "model_type": "RandomForestRegressor",
+  "class_thresholds": {
+    "N": [
+      35,
+      65
+    ],
+    "P": [
+      30,
+      55
+    ],
+    "K": [
+      28,
+      55
+    ]
+  },
+  "rf_params": {
+    "n_estimators": 150,
+    "max_depth": 12,
+    "min_samples_leaf": 4,
+    "random_state": 42,
+    "n_jobs": -1
+  }
+}

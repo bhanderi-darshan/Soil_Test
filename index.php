@@ -1,25 +1,44 @@
+<?php
+session_start();
+include "db.php";
+$query_msg = '';
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_query'])) {
+    $name = mysqli_real_escape_string($conn, trim($_POST['name']));
+    $email = mysqli_real_escape_string($conn, trim($_POST['email']));
+    $query_text = mysqli_real_escape_string($conn, trim($_POST['query']));
+    if (!empty($name) && !empty($email) && !empty($query_text)) {
+        if (mysqli_query($conn, "INSERT INTO queries (name, email, message) VALUES ('$name', '$email', '$query_text')")) {
+            $query_msg = "Your query has been successfully submitted. We will contact you soon.";
+        } else {
+            $query_msg = "Error submitting query. Please try again.";
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Soil Analyzer</title>
     <!-- Modern, professional typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet">
     <style>
-        /* Colorful Agriculture-Themed Professional Variables */
+        /* SmartSoil – Colorful #F2B759 & #0A4A3C Palette */
         :root {
-            --primary: #2c3e2d;         /* Deep earthy forest green for primary text */
-            --secondary: #5d665e;       /* Earthy gray for paragraphs */
-            --bg-light: #fdfbf7;        /* Very soft cream/warm white for background */
-            --bg-alt: #f0f5f1;          /* Soft pale green for alternating sections */
-            --card-bg: #f0f5f1;         /* Changed to avoid white boxes */
+            --primary: #0A4A3C;
+            --secondary: #1f6153;
+            --bg-light: #fdfbf7;
+            --bg-alt: #f1ebd8;
+            --card-bg: #ffffff;
             --text-light: #ffffff;
-            --border-color: #dcedc8;    /* Very soft green border */
-            
-            --accent: #4caf50;          /* Vibrant leaf green */
-            --accent-hover: #388e3c;    /* Deep leaf green */
-            --accent-warm: #f6a623;     /* Warm sun/harvest yellow/orange accent */
+            --border-color: #e6d8bc;
+            --accent: #F2B759;
+            --accent-hover: #e09e36;
+            --accent-warm: #f5c77e;
         }
 
         * {
@@ -29,7 +48,12 @@
             font-family: 'Inter', sans-serif;
         }
 
-        h1, h2, h3, h4, .logo, .btn {
+        h1,
+        h2,
+        h3,
+        h4,
+        .logo,
+        .btn {
             font-family: 'Outfit', sans-serif;
         }
 
@@ -40,16 +64,16 @@
         body {
             color: var(--primary);
             line-height: 1.7;
-            background-color: var(--bg-light);
+            background: var(--bg-light);
             overflow-x: hidden;
         }
 
         /* Navbar */
         .navbar {
             width: 100%;
-            background: var(--bg-light);
-            border-bottom: 2px solid var(--border-color);
-            box-shadow: 0 2px 20px rgba(44, 62, 45, 0.08);
+            background: var(--card-bg);
+            border-bottom: 2px solid var(--accent);
+            box-shadow: 0 4px 20px rgba(10, 74, 60, 0.15);
             height: 68px;
             display: flex;
             align-items: center;
@@ -72,19 +96,21 @@
             letter-spacing: 0.5px;
         }
 
-        .nav-logo span { color: var(--accent); }
+        .nav-logo span {
+            color: var(--accent);
+        }
 
         .nav-logo-icon {
             width: 38px;
             height: 38px;
             background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-            color: var(--text-light);
+            color: var(--primary);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
-            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 4px 10px rgba(242, 183, 89, 0.4);
         }
 
         .nav-links {
@@ -104,18 +130,23 @@
             text-decoration: none;
         }
 
-        .nav-links a:hover { color: var(--accent-hover); background: var(--bg-alt); }
+        .nav-links a:hover {
+            color: var(--primary);
+            background: rgba(242, 183, 89, 0.15);
+        }
 
         .nav-links .nav-cta {
-            background: var(--accent);
+            background: linear-gradient(135deg, #0A4A3C 0%, #177864 100%);
             color: var(--text-light) !important;
             padding: 9px 22px;
             border-radius: 6px;
             font-weight: 700;
-            box-shadow: 0 3px 12px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 3px 12px rgba(10, 74, 60, 0.3);
+            border: 1px solid #146150;
         }
+
         .nav-links .nav-cta:hover {
-            background: var(--accent-hover) !important;
+            background: linear-gradient(135deg, #0d5e4d 0%, #146150 100%) !important;
             color: var(--text-light) !important;
             transform: translateY(-1px);
         }
@@ -123,8 +154,8 @@
         /* Hero Section */
         .hero {
             height: 100vh;
-            background: linear-gradient(rgba(20, 40, 20, 0.4), rgba(40, 50, 30, 0.7)), 
-                        url('images/hero_bg.png') no-repeat center center/cover;
+            background: linear-gradient(135deg, rgba(10, 74, 60, 0.85) 0%, rgba(31, 97, 83, 0.75) 100%),
+                url('images/farm_bg.png') no-repeat center center/cover;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -160,24 +191,24 @@
 
         .hero .btn {
             display: inline-block;
-            background-color: var(--accent);
-            color: var(--text-light);
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: var(--primary);
             padding: 18px 50px;
             font-size: 1.1rem;
-            font-weight: 600;
+            font-weight: 800;
             text-decoration: none;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             transition: all 0.3s ease;
             border: none;
             border-radius: 4px;
-            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+            box-shadow: 0 8px 25px rgba(242, 183, 89, 0.4);
         }
 
         .hero .btn:hover {
-            background-color: var(--accent-hover);
+            background: linear-gradient(135deg, #e09e36, #cc8c29);
             transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(76, 175, 80, 0.6);
+            box-shadow: 0 12px 30px rgba(242, 183, 89, 0.6);
         }
 
         /* Common Layout */
@@ -194,12 +225,12 @@
             letter-spacing: -0.5px;
             position: relative;
         }
-        
+
         .section-title::after {
             content: '';
             width: 60px;
             height: 4px;
-            background-color: var(--accent);
+            background: linear-gradient(90deg, var(--accent), var(--accent-warm));
             display: block;
             margin: 15px auto 0;
             border-radius: 2px;
@@ -207,7 +238,7 @@
 
         /* Product Section */
         .product-section {
-            background-color: var(--bg-light);
+            background: var(--bg-light);
         }
 
         .product-container {
@@ -230,7 +261,7 @@
             color: var(--primary);
             position: relative;
         }
-        
+
         .product-text h2::after {
             content: '';
             width: 50px;
@@ -280,7 +311,7 @@
 
         /* Features Section */
         .features-section {
-            background-color: var(--bg-alt);
+            background: linear-gradient(135deg, rgba(242, 183, 89, 0.08) 0%, rgba(10, 74, 60, 0.05) 100%);
         }
 
         .features-grid {
@@ -297,14 +328,15 @@
             border: 1px solid var(--border-color);
             text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border-radius: 8px;
-            border-top: 4px solid var(--accent);
+            border-radius: 12px;
+            border-top: 4px solid var(--primary);
+            box-shadow: 0 5px 20px rgba(10, 74, 60, 0.05);
         }
 
         .feature-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(44, 62, 45, 0.08);
-            border-top-color: var(--accent-warm);
+            box-shadow: 0 15px 35px rgba(242, 183, 89, 0.2);
+            border-top-color: var(--accent);
         }
 
         .feature-card h3 {
@@ -321,7 +353,7 @@
 
         /* Contact Section */
         .contact-section {
-            background-color: var(--bg-light);
+            background: var(--bg-light);
         }
 
         .contact-container {
@@ -338,11 +370,11 @@
             color: var(--primary);
             padding: 50px;
             border-radius: 8px;
-            box-shadow: 0 15px 35px rgba(44, 62, 45, 0.05);
+            box-shadow: 0 15px 35px rgba(0, 161, 155, 0.08);
             border: 1px solid var(--border-color);
             border-top: 4px solid var(--accent);
         }
-        
+
         .contact-details h3 {
             font-size: 1.8rem;
             margin-bottom: 30px;
@@ -350,7 +382,7 @@
             font-weight: 700;
             position: relative;
         }
-        
+
         .contact-details h3::after {
             content: '';
             width: 40px;
@@ -383,7 +415,7 @@
             padding: 50px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
-            box-shadow: 0 10px 30px rgba(44, 62, 45, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 161, 155, 0.08);
             border-top: 4px solid var(--accent);
         }
 
@@ -402,18 +434,20 @@
         .form-control {
             width: 100%;
             padding: 16px 20px;
-            border: 1px solid #ced4da;
-            background-color: #fafbfc;
+            border: 2px solid var(--border-color);
+            background-color: var(--bg-light);
             font-family: inherit;
             font-size: 1rem;
             transition: all 0.3s ease;
-            border-radius: 4px;
+            border-radius: 8px;
+            font-weight: 500;
+            color: var(--primary);
         }
 
         .form-control:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+            box-shadow: 0 0 0 4px rgba(242, 183, 89, 0.2);
             background-color: #ffffff;
         }
 
@@ -423,37 +457,41 @@
         }
 
         .submit-btn {
-            background-color: var(--accent-warm);
-            color: var(--primary);
+            background: linear-gradient(135deg, #0A4A3C, #177864);
+            color: var(--text-light);
             border: none;
             padding: 18px 30px;
             font-size: 1.1rem;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
             width: 100%;
             text-transform: uppercase;
             letter-spacing: 1px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            border-radius: 4px;
+            transition: all 0.3s ease;
+            border-radius: 8px;
             font-family: 'Outfit', sans-serif;
+            box-shadow: 0 6px 15px rgba(10, 74, 60, 0.3);
         }
 
         .submit-btn:hover {
-            background-color: #ffa000;
+            background: linear-gradient(135deg, #0d5e4d, #0A4A3C);
             transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(10, 74, 60, 0.4);
         }
 
         /* Footer */
         footer {
-            background-color: var(--primary);
-            color: #a3b8a5;
+            background: linear-gradient(135deg, #0A4A3C, #177864);
+            color: rgba(255,255,255,0.8);
             text-align: center;
             padding: 40px 20px;
             font-size: 0.95rem;
+            border-top: 5px solid var(--accent);
         }
 
         footer strong {
-            color: var(--text-light);
+            color: var(--accent);
+            font-weight: 800;
         }
 
         /* Responsive */
@@ -462,27 +500,35 @@
                 flex-direction: column;
                 text-align: center;
             }
+
             .product-text h2::after {
                 margin: 15px auto 0;
             }
+
             .contact-container {
                 flex-direction: column;
             }
-            .contact-details, .contact-form-wrapper {
+
+            .contact-details,
+            .contact-form-wrapper {
                 width: 100%;
             }
+
             .contact-details p {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 5px;
             }
+
             .contact-details p strong {
                 min-width: auto;
             }
+
             .navbar {
                 flex-direction: column;
                 gap: 20px;
             }
+
             .nav-links {
                 flex-wrap: wrap;
                 justify-content: center;
@@ -490,6 +536,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <!-- Header Navigation Section -->
@@ -499,10 +546,9 @@
             Smart<span>Soil</span>
         </a>
         <div class="nav-links">
-            <a href="#home">Home</a>
-            <a href="#contact">Contact</a>
+            <a href="index.php">Home</a>
             <a href="login.php">Login</a>
-            <a href="dashboard.php">Profile</a>
+            <a href="index.php#contact">Contact</a>
         </div>
     </nav>
 
@@ -510,7 +556,8 @@
     <section id="home" class="hero">
         <div class="hero-content">
             <h1>Precision Agriculture Intelligence</h1>
-            <p>A sophisticated field monitoring system. Monitor your soil health seamlessly and optimize your yields with real-time sensor data and professional guidance.</p>
+            <p>A sophisticated field monitoring system. Monitor your soil health seamlessly and optimize your yields
+                with real-time sensor data and professional guidance.</p>
             <a href="#product" class="btn">Discover the Hardware</a>
         </div>
     </section>
@@ -520,13 +567,18 @@
         <div class="product-container">
             <div class="product-text">
                 <h2>Product Overview</h2>
-                <p>The Smart Soil Analyzer is a state-of-the-art IoT device designed to provide farmers and commercial agriculture teams with comprehensive, real-time insights into field conditions.</p>
-                <p>Equipped with advanced multi-parameter sensors, the device continuously monitors moisture levels, electrical conductivity (EC), and ambient temperature, automatically transmitting robust datasets to our cloud infrastructure for deep analysis.</p>
-                <p><strong>Industrial Durability:</strong> Engineered to withstand harsh agricultural environments, ensuring reliable performance across all seasons.</p>
+                <p>The Smart Soil Analyzer is a state-of-the-art IoT device designed to provide farmers and commercial
+                    agriculture teams with comprehensive, real-time insights into field conditions.</p>
+                <p>Equipped with advanced multi-parameter sensors, the device continuously monitors moisture levels,
+                    electrical conductivity (EC), and ambient temperature, automatically transmitting robust datasets to
+                    our cloud infrastructure for deep analysis.</p>
+                <p><strong>Industrial Durability:</strong> Engineered to withstand harsh agricultural environments,
+                    ensuring reliable performance across all seasons.</p>
             </div>
             <div class="product-image">
                 <!-- Using the existing product.png from the images directory -->
-                <img src="images/product.png" alt="Smart Soil Analyzer Hardware" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <img src="images/product.png" alt="Smart Soil Analyzer Hardware"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="product-placeholder" style="display: none;">
                     [ Insert Your Product Photo Here ]
                 </div>
@@ -540,15 +592,18 @@
         <div class="features-grid">
             <div class="feature-card">
                 <h3>Hardware Integration</h3>
-                <p>High-precision physical sensors measure EC, moisture, and temperature directly from your soil 24/7 with virtually zero latency.</p>
+                <p>High-precision physical sensors measure EC, moisture, and temperature directly from your soil 24/7
+                    with virtually zero latency.</p>
             </div>
             <div class="feature-card">
                 <h3>AI NPK Prediction</h3>
-                <p>Instantly predict Nitrogen, Phosphorus, and Potassium levels through highly sophisticated machine learning models based on local data.</p>
+                <p>Instantly predict Nitrogen, Phosphorus, and Potassium levels through highly sophisticated machine
+                    learning models based on local data.</p>
             </div>
             <div class="feature-card">
                 <h3>Autonomous Guidance</h3>
-                <p>Receive immediate, highly-tailored fertilizer dosages and crop cycle recommendations optimized specifically for your exact environment.</p>
+                <p>Receive immediate, highly-tailored fertilizer dosages and crop cycle recommendations optimized
+                    specifically for your exact environment.</p>
             </div>
         </div>
     </section>
@@ -557,42 +612,51 @@
     <section id="contact" class="contact-section">
         <h2 class="section-title">Inquiries & Support</h2>
         <div class="contact-container">
-            
+
             <!-- Left Side: Contact Details -->
             <div class="contact-details">
                 <h3>Get in Touch</h3>
-                <p><strong>📍 Address:</strong><br>123 Agriculture Tech Park,<br>Smart City, 10001</p>
-                <p><strong>📞 Phone:</strong><br>+1 (555) 123-4567</p>
-                <p><strong>✉️ Email:</strong><br>support@smartsoil.com</p>
+                <p><strong>📍 Address:</strong><br>Smart Soil Production ,<br>Rajkot , 360001</p>
+                <p><strong>📞 Phone:</strong><br>+91 9104219230</p>
+                <p><strong>✉️ Email:</strong><br>darshanbhanderi005@gmail.com</p>
                 <p><strong>🕒 Business Hours:</strong><br>Mon - Fri, 9:00 AM - 6:00 PM</p>
             </div>
 
-            <!-- Right Side: Contact Form -->
             <div class="contact-form-wrapper">
-                <form action="#" method="POST" onsubmit="event.preventDefault(); alert('Your query has been successfully submitted. We will contact you soon.');">
+                <?php if ($query_msg): ?>
+                    <div
+                        style="background:#e8f5e9; color:#2e7d32; padding:15px; border-radius:8px; margin-bottom:20px; font-weight:600; border:1px solid #a5d6a7;">
+                        ✓ <?php echo htmlspecialchars($query_msg); ?>
+                    </div>
+                <?php endif; ?>
+                <form action="#contact" method="POST">
                     <div class="form-group">
                         <label for="name">Full Name</label>
-                        <input type="text" id="name" class="form-control" required placeholder="Jane Doe">
+                        <input type="text" id="name" name="name" class="form-control" required placeholder="John Doe">
                     </div>
                     <div class="form-group">
                         <label for="email">Business Email</label>
-                        <input type="email" id="email" class="form-control" required placeholder="jane@farm-tech.com">
+                        <input type="email" id="email" name="email" class="form-control" required
+                            placeholder="support@smartsoi.com">
                     </div>
                     <div class="form-group">
                         <label for="query">Detailed Query</label>
-                        <textarea id="query" class="form-control" placeholder="How can our hardware solutions elevate your agricultural output?" required></textarea>
+                        <textarea id="query" name="query" class="form-control"
+                            placeholder="How can our hardware solutions elevate your agricultural output?"
+                            required></textarea>
                     </div>
-                    <button type="submit" class="submit-btn">Submit Request</button>
+                    <button type="submit" name="submit_query" class="submit-btn">Submit Request</button>
                 </form>
             </div>
-            
+
         </div>
     </section>
 
     <!-- Footer -->
     <footer>
-        &copy; 2026 <strong>Smart Soil Analyzer</strong> | Next-Gen Agricultural Solutions. All Rights Reserved.
+        &copy; 2026 <strong>Smart Soil Tester </strong> |Smart Soil Agricultural Solutions. All Rights Reserved.
     </footer>
 
 </body>
+
 </html>

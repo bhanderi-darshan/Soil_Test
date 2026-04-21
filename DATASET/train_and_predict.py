@@ -36,7 +36,7 @@ def main():
     print("Starting train_and_predict script")
     print(f"Working directory: {os.getcwd()}")
 
-    data_file = "soil_dataset_ready.csv"
+    data_file = "Soil_ready.csv"
     if not os.path.exists(data_file):
         raise FileNotFoundError(f"Data file not found: {data_file}")
 

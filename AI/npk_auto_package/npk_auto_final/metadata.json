@@ -1,0 +1,280 @@
+{
+  "target_r2": 0.7,
+  "achieved": {
+    "N": false,
+    "P": false,
+    "K": false
+  },
+  "best_r2": {
+    "N": 0.3622,
+    "P": 0.1731,
+    "K": 0.3768
+  },
+  "final_loop": 8,
+  "feature_cols": [
+    "Moisture",
+    "pH",
+    "EC",
+    "Soil_Temperature",
+    "Soil_Enc",
+    "log_EC",
+    "log_Moisture",
+    "log_Temp",
+    "EC_Moist_ratio",
+    "Temp_EC_ratio",
+    "Moist_Temp_ratio",
+    "poly_Moisture^2",
+    "poly_Moisture_pH",
+    "poly_Moisture_EC",
+    "poly_Moisture_Soil_Temperature",
+    "poly_pH^2",
+    "poly_pH_EC",
+    "poly_pH_Soil_Temperature",
+    "poly_EC^2",
+    "poly_EC_Soil_Temperature",
+    "poly_Soil_Temperature^2"
+  ],
+  "soil_classes": [
+    "Clay",
+    "Loamy",
+    "Peaty",
+    "Sandy",
+    "Silty"
+  ],
+  "class_thresholds": {
+    "N": [
+      35,
+      65
+    ],
+    "P": [
+      30,
+      55
+    ],
+    "K": [
+      28,
+      55
+    ]
+  },
+  "config_used": {
+    "TARGET_R2": 0.7,
+    "MAX_RETRAIN_LOOPS": 8,
+    "USE_POLY_FEATURES": true,
+    "POLY_DEGREE": 2,
+    "ADD_LOG_FEATURES": true,
+    "ADD_RATIO_FEATURES": true,
+    "TEST_SIZE": 0.2,
+    "CV_FOLDS": 5,
+    "RF_N_ESTIMATORS": 300,
+    "RF_MAX_DEPTH": null,
+    "RF_MIN_SAMPLES_LEAF": 2,
+    "RF_MAX_FEATURES": "sqrt",
+    "GB_N_ESTIMATORS": 500,
+    "GB_LEARNING_RATE": 0.05,
+    "GB_MAX_DEPTH": 5,
+    "GB_SUBSAMPLE": 0.8,
+    "XGB_N_ESTIMATORS": 600,
+    "XGB_LEARNING_RATE": 0.04,
+    "XGB_MAX_DEPTH": 7,
+    "XGB_SUBSAMPLE": 0.8,
+    "XGB_COLSAMPLE": 0.8,
+    "XGB_REG_ALPHA": 0.1,
+    "XGB_REG_LAMBDA": 1.5,
+    "STACK_USE_XGB": true,
+    "STACK_FINAL_RIDGE_ALPHA": 1.0,
+    "SAVE_BEST_ONLY": true
+  },
+  "history": [
+    {
+      "loop": 1,
+      "strategy": "Random Forest",
+      "scores": {
+        "N": {
+          "r2": 0.293,
+          "mae": 16.019,
+          "rmse": 19.271,
+          "cv_r2": 0.3106
+        },
+        "P": {
+          "r2": 0.1635,
+          "mae": 13.068,
+          "rmse": 15.661,
+          "cv_r2": 0.1355
+        },
+        "K": {
+          "r2": 0.2878,
+          "mae": 15.327,
+          "rmse": 18.435,
+          "cv_r2": 0.304
+        }
+      }
+    },
+    {
+      "loop": 2,
+      "strategy": "Gradient Boosting",
+      "scores": {
+        "N": {
+          "r2": 0.2944,
+          "mae": 16.041,
+          "rmse": 19.878,
+          "cv_r2": 0.274
+        },
+        "P": {
+          "r2": 0.1218,
+          "mae": 13.817,
+          "rmse": 16.422,
+          "cv_r2": 0.0824
+        },
+        "K": {
+          "r2": 0.2873,
+          "mae": 14.558,
+          "rmse": 18.197,
+          "cv_r2": 0.2609
+        }
+      }
+    },
+    {
+      "loop": 3,
+      "strategy": "Stacking Ensemble",
+      "scores": {
+        "N": {
+          "r2": 0.2629,
+          "mae": 16.187,
+          "rmse": 19.65,
+          "cv_r2": 0.3204
+        },
+        "P": {
+          "r2": 0.1487,
+          "mae": 13.751,
+          "rmse": 16.124,
+          "cv_r2": 0.152
+        },
+        "K": {
+          "r2": 0.2448,
+          "mae": 15.414,
+          "rmse": 18.647,
+          "cv_r2": 0.3216
+        }
+      }
+    },
+    {
+      "loop": 4,
+      "strategy": "Stacking Ensemble",
+      "scores": {
+        "N": {
+          "r2": 0.3492,
+          "mae": 15.267,
+          "rmse": 18.519,
+          "cv_r2": 0.3204
+        },
+        "P": {
+          "r2": 0.1265,
+          "mae": 13.774,
+          "rmse": 16.299,
+          "cv_r2": 0.152
+        },
+        "K": {
+          "r2": 0.2905,
+          "mae": 14.911,
+          "rmse": 18.224,
+          "cv_r2": 0.3216
+        }
+      }
+    },
+    {
+      "loop": 5,
+      "strategy": "Stacking Ensemble",
+      "scores": {
+        "N": {
+          "r2": 0.3292,
+          "mae": 15.098,
+          "rmse": 18.336,
+          "cv_r2": 0.3204
+        },
+        "P": {
+          "r2": 0.1508,
+          "mae": 13.252,
+          "rmse": 15.736,
+          "cv_r2": 0.152
+        },
+        "K": {
+          "r2": 0.2811,
+          "mae": 14.784,
+          "rmse": 18.184,
+          "cv_r2": 0.3216
+        }
+      }
+    },
+    {
+      "loop": 6,
+      "strategy": "Stacking Ensemble",
+      "scores": {
+        "N": {
+          "r2": 0.3202,
+          "mae": 15.261,
+          "rmse": 18.686,
+          "cv_r2": 0.3204
+        },
+        "P": {
+          "r2": 0.1731,
+          "mae": 13.517,
+          "rmse": 15.927,
+          "cv_r2": 0.152
+        },
+        "K": {
+          "r2": 0.3768,
+          "mae": 14.266,
+          "rmse": 17.317,
+          "cv_r2": 0.3216
+        }
+      }
+    },
+    {
+      "loop": 7,
+      "strategy": "Stacking Ensemble",
+      "scores": {
+        "N": {
+          "r2": 0.3622,
+          "mae": 15.272,
+          "rmse": 18.568,
+          "cv_r2": 0.3204
+        },
+        "P": {
+          "r2": 0.1568,
+          "mae": 13.584,
+          "rmse": 15.912,
+          "cv_r2": 0.152
+        },
+        "K": {
+          "r2": 0.3483,
+          "mae": 13.522,
+          "rmse": 16.548,
+          "cv_r2": 0.3216
+        }
+      }
+    },
+    {
+      "loop": 8,
+      "strategy": "Stacking Ensemble",
+      "scores": {
+        "N": {
+          "r2": 0.3108,
+          "mae": 15.972,
+          "rmse": 19.452,
+          "cv_r2": 0.3204
+        },
+        "P": {
+          "r2": 0.1328,
+          "mae": 13.876,
+          "rmse": 16.096,
+          "cv_r2": 0.152
+        },
+        "K": {
+          "r2": 0.301,
+          "mae": 15.123,
+          "rmse": 18.113,
+          "cv_r2": 0.3216
+        }
+      }
+    }
+  ]
+}

@@ -1,50 +1,38 @@
 <?php
 
-include "db.php";
+$conn = new mysqli("localhost", "root", "", "soil_project");
 
-// check required parameters
-
-if (!isset($_GET['device']) || !isset($_GET['moisture']) || !isset($_GET['ec']) || !isset($_GET['temp'])) {
-    die("Missing parameters");
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 
-// get values safely
+if (
+    isset($_GET['device']) &&
+    isset($_GET['moisture']) &&
+    isset($_GET['ec']) &&
+    isset($_GET['temp'])
+) {
 
-$device = mysqli_real_escape_string($conn, $_GET['device']);
-$moisture = mysqli_real_escape_string($conn, $_GET['moisture']);
-$ec = mysqli_real_escape_string($conn, $_GET['ec']);
-$temp = mysqli_real_escape_string($conn, $_GET['temp']);
+    $device = $_GET['device'];
+    $moisture = $_GET['moisture'];
+    $ec = $_GET['ec'];
+    $temp = $_GET['temp'];
 
+    $sql = "INSERT INTO sensor_data (device_id, moisture, ec, temperature)
+            VALUES ('$device', '$moisture', '$ec', '$temp')";
 
-// check if device exists
-
-$checkDevice = "SELECT * FROM devices WHERE device_id='$device'";
-$result = $conn->query($checkDevice);
-
-if ($result->num_rows == 0) {
-    die("Invalid device ID");
-}
-
-
-// insert sensor data
-
-$sql = "INSERT INTO sensor_data (device_id, ec, moisture, temperature)
-        VALUES ('$device','$ec','$moisture','$temp')";
-
-if ($conn->query($sql) === TRUE) {
-
-    // run python prediction model
-
-    $cmd = escapeshellcmd("python predict.py");
-
-    exec($cmd . " > /dev/null 2>&1 &");
-
-    echo "Sensor Data Saved + Model Executed Successfully";
+    if ($conn->query($sql) === TRUE) {
+        echo "SUCCESS";
+    } else {
+        echo "ERROR: " . $conn->error;
+    }
 
 } else {
 
-    echo "Database Insert Error";
+    echo "Missing parameters";
 
 }
+
+$conn->close();
 
 ?>
